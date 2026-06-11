@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Our Space 💕 · Otikas</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sofia&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --rose:     #f43f5e;
+      --rose-dk:  #e11d48;
+      --rose-lt:  #ffe4e6;
+      --rose-bg:  #fff1f2;
+      --rose-bd:  #fecdd3;
+      --text:     #1c0a0d;
+      --muted:    rgba(28,10,13,0.42);
+      --white:    #ffffff;
+      --shadow:   0 4px 18px rgba(244,63,94,0.13);
+      --radius:   1.1rem;
+    }
+
+    body {
+      height: 100dvh;
+      background: var(--rose-bg);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: 'DM Sans', sans-serif;
+      color: var(--text);
+      overflow: hidden;
+    }
+
+    /* ─── WELCOME ─── */
+    #welcomeScreen {
+      position: fixed; inset: 0; z-index: 200;
+      background: var(--rose);
+      display: flex; flex-direction: column;
+      justify-content: center; align-items: center; gap: 1rem;
+      transition: opacity 0.7s ease, visibility 0.7s ease;
+    }
+    #welcomeScreen.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+
+    .welcome-hearts {
+      font-size: 2.4rem;
+      animation: pulse 1.6s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%,100% { transform: scale(1); }
+      50%      { transform: scale(1.15); }
+    }
+    .welcome-card {
+      background: var(--rose-bg);
+      border-radius: var(--radius);
+      padding: 2rem 2.8rem;
+      text-align: center;
+      box-shadow: var(--shadow);
+    }
+    .welcome-card h2 {
+      font-family: 'Sofia', cursive;
+      font-size: 2rem; color: var(--rose); margin-bottom: 0.3rem;
+    }
+    .welcome-card p { color: var(--muted); font-size: 0.95rem; }
+    .welcome-brand {
+      font-size: 0.72rem; color: rgba(255,255,255,0.55);
+      letter-spacing: 0.12em; text-transform: uppercase; margin-top: 0.4rem;
+    }
+
+    /* ─── SCREEN WRAPPER ─── */
+    .screen {
+      width: 95%; max-width: 430px;
+      display: none; flex-direction: column;
+    }
+    .screen.active { display: flex; }
+
+    /* ─── AUTH CARD ─── */
+    .auth-card {
+      background: var(--white);
+      border-radius: var(--radius);
+      padding: 2rem 1.6rem;
+      box-shadow: var(--shadow);
+      gap: 1rem;
+      display: flex; flex-direction: column;
+      transition: transform 0.35s ease;
+    }
+    .auth-card:hover { transform: translateY(-3px); }
+
+    .auth-title {
+      font-family: 'Sofia', cursive;
+      font-size: 1.5rem; color: var(--rose);
+      text-align: center;
+    }
+    .auth-sub { font-size: 0.82rem; color: var(--muted); text-align: center; margin-top: -0.5rem; }
+
+    .field {
+      display: flex; flex-direction: column; gap: 0.3rem;
+    }
+    .field label { font-size: 0.78rem; font-weight: 600; color: var(--muted); }
+    .field input {
+      padding: 0.72rem 1rem;
+      border: 1.5px solid var(--rose-bd);
+      border-radius: 0.65rem;
+      font-size: 0.93rem; background: var(--rose-bg);
+      color: var(--text); outline: none;
+      transition: border-color 0.25s, background 0.25s;
+      font-family: inherit;
+    }
+    .field input:focus { border-color: var(--rose); background: var(--white); }
+
+    .auth-btn {
+      padding: 0.78rem;
+      background: var(--rose); color: var(--white);
+      border: none; border-radius: 0.65rem;
+      font-size: 0.95rem; font-weight: 600;
+      cursor: pointer; font-family: inherit;
+      transition: background 0.25s, transform 0.15s;
+    }
+    .auth-btn:hover  { background: var(--rose-dk); }
+    .auth-btn:active { transform: scale(0.97); }
+    .auth-btn:disabled { background: var(--rose-bd); cursor: not-allowed; }
+
+    .auth-toggle {
+      font-size: 0.82rem; text-align: center; color: var(--muted);
+    }
+    .auth-toggle span {
+      color: var(--rose); cursor: pointer; font-weight: 600;
+    }
+    .auth-toggle span:hover { text-decoration: underline; }
+
+    .auth-error {
+      font-size: 0.8rem; color: #fb923c;
+      text-align: center; min-height: 1rem;
+    }
+
+    /* ─── CHAT ─── */
+    #chatScreen {
+      height: 92dvh;
+      background: var(--white);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* Header */
+    .chat-header {
+      background: var(--rose);
+      padding: 0.75rem 1rem;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .chat-header-left { display: flex; align-items: center; gap: 0.6rem; }
+    .chat-avatar {
+      width: 36px; height: 36px;
+      background: rgba(255,255,255,0.25);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem;
+    }
+    .chat-title { font-family: 'Sofia', cursive; color: var(--white); font-size: 1.05rem; }
+    .chat-online { font-size: 0.7rem; color: rgba(255,255,255,0.75); }
+
+    .header-actions { display: flex; gap: 0.4rem; }
+    .icon-btn {
+      background: rgba(255,255,255,0.18);
+      border: none; border-radius: 0.5rem;
+      color: var(--white); padding: 0.35rem 0.6rem;
+      font-size: 0.82rem; cursor: pointer;
+      transition: background 0.2s;
+      font-family: inherit;
+    }
+    .icon-btn:hover { background: rgba(255,255,255,0.32); }
+
+    /* Messages */
+    #chatHolder {
+      height: calc(92dvh - 120px);
+      overflow-y: auto; overflow-x: hidden;
+      padding: 0.9rem 0.8rem;
+      display: flex; flex-direction: column; gap: 0.5rem;
+      background: var(--rose-bg);
+      scroll-behavior: smooth;
+    }
+    #chatHolder::-webkit-scrollbar { width: 4px; }
+    #chatHolder::-webkit-scrollbar-thumb { background: var(--rose-bd); border-radius: 4px; }
+
+    .empty-state {
+      margin: auto; text-align: center; color: var(--muted);
+    }
+    .empty-state .big { font-size: 2.5rem; margin-bottom: 0.5rem; }
+    .empty-state p { font-size: 0.85rem; }
+
+    /* Date divider */
+    .date-divider {
+      display: flex; align-items: center; gap: 0.5rem;
+      font-size: 0.7rem; color: var(--muted); margin: 0.4rem 0;
+    }
+    .date-divider::before, .date-divider::after {
+      content: ''; flex: 1; height: 1px; background: var(--rose-bd);
+    }
+
+    /* Bubbles */
+    .msg-row {
+      display: flex; align-items: flex-end; gap: 0.4rem;
+    }
+    .msg-row.me { flex-direction: row-reverse; }
+
+    .msg-avatar {
+      width: 26px; height: 26px; border-radius: 50%;
+      background: var(--rose-lt);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.8rem; flex-shrink: 0;
+    }
+    .msg-row.me .msg-avatar { background: var(--rose); color: var(--white); }
+
+    .msg-block { display: flex; flex-direction: column; gap: 0.18rem; max-width: 72%; }
+    .msg-row.me .msg-block { align-items: flex-end; }
+
+    .bubble {
+      padding: 0.55rem 0.85rem;
+      border-radius: 1.1rem;
+      font-size: 0.91rem; line-height: 1.5;
+      word-break: break-word;
+      position: relative;
+    }
+    .me .bubble {
+      background: var(--rose); color: var(--white);
+      border-bottom-right-radius: 0.2rem;
+    }
+    .them .bubble {
+      background: var(--white); color: var(--text);
+      border-bottom-left-radius: 0.2rem;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+    }
+
+    .msg-time { font-size: 0.65rem; color: var(--muted); padding: 0 0.2rem; }
+
+    /* ─── INPUT BAR ─── */
+    .input-bar {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      display: flex; align-items: center; gap: 0.5rem;
+      padding: 0.55rem 0.65rem;
+      background: var(--white);
+      border-top: 1.5px solid var(--rose-bd);
+    }
+
+    .emoji-toggle {
+      background: none; border: none;
+      font-size: 1.35rem; cursor: pointer;
+      padding: 0.2rem; border-radius: 0.4rem;
+      transition: transform 0.2s;
+      line-height: 1;
+    }
+    .emoji-toggle:hover { transform: scale(1.15); }
+
+    #messageInput {
+      flex: 1;
+      padding: 0.6rem 0.9rem;
+      border: 1.5px solid var(--rose-bd);
+      border-radius: 2rem;
+      font-size: 0.92rem;
+      background: var(--rose-bg);
+      color: var(--text); outline: none;
+      font-family: inherit;
+      transition: border-color 0.25s, background 0.25s;
+    }
+    #messageInput:focus { border-color: var(--rose); background: var(--white); }
+
+    #sendBtn {
+      width: 40px; height: 40px;
+      background: var(--rose); color: var(--white);
+      border: none; border-radius: 50%;
+      font-size: 1rem; cursor: pointer; flex-shrink: 0;
+      transition: background 0.2s, transform 0.15s;
+      display: flex; align-items: center; justify-content: center;
+    }
+    #sendBtn:hover  { background: var(--rose-dk); }
+    #sendBtn:active { transform: scale(0.9); }
+    #sendBtn:disabled { background: var(--rose-bd); cursor: not-allowed; }
+
+    /* ─── EMOJI PANEL ─── */
+    #emojiPanel {
+      position: absolute;
+      bottom: 62px; left: 0; right: 0;
+      background: var(--white);
+      border-top: 1.5px solid var(--rose-bd);
+      padding: 0.6rem;
+      display: none;
+      flex-direction: column; gap: 0.5rem;
+      z-index: 10;
+    }
+    #emojiPanel.open { display: flex; }
+
+    .emoji-cats {
+      display: flex; gap: 0.3rem; overflow-x: auto;
+      padding-bottom: 0.3rem;
+    }
+    .emoji-cats::-webkit-scrollbar { display: none; }
+    .cat-btn {
+      background: var(--rose-bg); border: 1.5px solid var(--rose-bd);
+      border-radius: 0.5rem; padding: 0.25rem 0.55rem;
+      font-size: 0.75rem; cursor: pointer; white-space: nowrap;
+      transition: background 0.2s, border-color 0.2s;
+      font-family: inherit; color: var(--text);
+    }
+    .cat-btn.active, .cat-btn:hover { background: var(--rose-lt); border-color: var(--rose); }
+
+    .emoji-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(36px, 1fr));
+      gap: 0.25rem;
+      max-height: 150px; overflow-y: auto;
+    }
+    .emoji-grid::-webkit-scrollbar { width: 3px; }
+    .emoji-grid::-webkit-scrollbar-thumb { background: var(--rose-bd); }
+
+    .e-btn {
+      background: none; border: none;
+      font-size: 1.3rem; cursor: pointer;
+      padding: 0.15rem; border-radius: 0.35rem;
+      transition: transform 0.15s, background 0.15s;
+      line-height: 1;
+    }
+    .e-btn:hover { background: var(--rose-lt); transform: scale(1.2); }
+
+    /* ─── LOGOUT MODAL ─── */
+    .modal-overlay {
+      position: fixed; inset: 0; z-index: 300;
+      background: rgba(28,10,13,0.4);
+      display: none; justify-content: center; align-items: center;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      background: var(--white);
+      border-radius: var(--radius);
+      padding: 1.8rem 1.6rem;
+      width: 88%; max-width: 320px;
+      text-align: center;
+      box-shadow: var(--shadow);
+      display: flex; flex-direction: column; gap: 1rem;
+    }
+    .modal h3 { font-family: 'Sofia', cursive; color: var(--rose); font-size: 1.3rem; }
+    .modal p  { font-size: 0.88rem; color: var(--muted); }
+    .modal-btns { display: flex; gap: 0.6rem; }
+    .modal-btns button {
+      flex: 1; padding: 0.7rem;
+      border: none; border-radius: 0.6rem;
+      font-size: 0.9rem; cursor: pointer;
+      font-family: inherit; font-weight: 600;
+      transition: opacity 0.2s;
+    }
+    .modal-btns button:hover { opacity: 0.85; }
+    #confirmLogout { background: var(--rose); color: var(--white); }
+    #cancelLogout  { background: var(--rose-lt); color: var(--rose); }
+
+    /* ─── TOAST ─── */
+    #toast {
+      position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%) translateY(20px);
+      background: var(--text); color: var(--white);
+      padding: 0.5rem 1rem; border-radius: 2rem;
+      font-size: 0.8rem; opacity: 0;
+      transition: opacity 0.3s, transform 0.3s;
+      pointer-events: none; z-index: 400; white-space: nowrap;
+    }
+    #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    /* ─── BRAND ─── */
+    .brand-footer {
+      text-align: center; margin-top: 0.6rem;
+      font-size: 0.68rem; color: var(--muted);
+      letter-spacing: 0.1em; text-transform: uppercase;
+    }
+  </style>
+</head>
+<body>
+
+<!-- Welcome -->
+<div id="welcomeScreen">
+  <div class="welcome-hearts">❤️💜❤️</div>
+  <div class="welcome-card">
+    <h2>Our Space 💕</h2>
+    <p>Just us, baby 🥰</p>
+  </div>
+  <div class="welcome-brand">Made with love · Otikas</div>
+</div>
+
+<!-- Auth -->
+<div class="screen" id="authScreen">
+  <div class="auth-card">
+    <div class="auth-title" id="authTitle">Welcome back 💕</div>
+    <div class="auth-sub" id="authSub">Sign in to our space</div>
+
+    <div class="field" id="nameField" style="display:none">
+      <label>Your name</label>
+      <input type="text" id="nameInput" placeholder="What's your name, love? ❤️"/>
+    </div>
+    <div class="field">
+      <label>Email</label>
+      <input type="email" id="emailInput" placeholder="your@email.com 💌" autocomplete="email"/>
+    </div>
+    <div class="field">
+      <label>Password</label>
+      <input type="password" id="passwordInput" placeholder="Our secret 🤫" autocomplete="current-password"/>
+    </div>
+    <div class="auth-error" id="authError"></div>
+    <button class="auth-btn" id="authBtn">Sign In, My Love 💕</button>
+    <div class="auth-toggle">
+      <span id="authToggle">Don't have an account? Register</span>
+    </div>
+  </div>
+  <div class="brand-footer">Made with love · Otikas</div>
+</div>
+
+<!-- Chat -->
+<div class="screen" id="chatScreen">
+  <div class="chat-header">
+    <div class="chat-header-left">
+      <div class="chat-avatar">💕</div>
+      <div>
+        <div class="chat-title">Our Space</div>
+        <div class="chat-online" id="onlineStatus">● Just us</div>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button class="icon-btn" id="logoutBtn">Sign out</button>
+    </div>
+  </div>
+
+  <div id="chatHolder">
+    <div class="empty-state" id="emptyState">
+      <div class="big">💬</div>
+      <p>Say something sweet…</p>
+    </div>
+  </div>
+
+  <!-- Emoji Panel -->
+  <div id="emojiPanel">
+    <div class="emoji-cats" id="emojiCats"></div>
+    <div class="emoji-grid" id="emojiGrid"></div>
+  </div>
+
+  <!-- Input Bar -->
+  <div class="input-bar">
+    <button class="emoji-toggle" id="emojiToggle" title="Emojis">😊</button>
+    <input type="text" id="messageInput" placeholder="Type something sweet… 💕" autocomplete="off"/>
+    <button id="sendBtn" disabled>🚀</button>
+  </div>
+</div>
+
+<!-- Logout Modal -->
+<div class="modal-overlay" id="logoutModal">
+  <div class="modal">
+    <h3>Leaving so soon? 🥺</h3>
+    <p>Are you sure you want to sign out of our space?</p>
+    <div class="modal-btns">
+      <button id="cancelLogout">Stay 💕</button>
+      <button id="confirmLogout">Sign out</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toast"></div>
+
+<!-- Firebase -->
+<script type="module">
+import { initializeApp }                          from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, createUserWithEmailAndPassword,
+         signInWithEmailAndPassword, signOut,
+         onAuthStateChanged, updateProfile }      from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getDatabase, ref, push, onChildAdded,
+         serverTimestamp, get, query,
+         orderByChild }                           from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+// ── Firebase config ──
+const firebaseConfig = {
+  apiKey:            "AIzaSyA4GvJl9eTCFhfITmDPmBVj139q6FR6o68",
+  authDomain:        "just-us-8e467.firebaseapp.com",
+  projectId:         "just-us-8e467",
+  storageBucket:     "just-us-8e467.firebasestorage.app",
+  messagingSenderId: "664233360457",
+  appId:             "1:664233360457:web:d32e27baf4f8ab7652d398",
+  databaseURL:       "https://just-us-8e467-default-rtdb.firebaseio.com"
+};
+
+const app  = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db   = getDatabase(app);
+const msgsRef = ref(db, 'messages');
+
+// ── Emoji data ──
+const EMOJIS = {
+  "❤️ Love":   ["❤️","💕","💖","💗","💓","💞","💝","🥰","😍","😘","💑","👫","💏","💋","🌹","💐","🎀","🥺","🫶","💌","😻","❣️","💟","🫦","🫀"],
+  "😂 Funny":  ["😂","🤣","😅","😆","😁","😜","😝","🤪","😛","🙃","😄","🤭","😏","😒","🙄","😤","😬","🤡","💀","☠️","🫠","🫢","🤫","😈","👹"],
+  "😢 Sad":    ["😢","😭","😔","😞","😟","🥺","😿","💔","😣","😖","😩","😫","🤧","😪","😰","😥","😓","🙁","☹️","😾","🫂","💧","🌧️","🥀","🖤"],
+  "🔥 Hype":   ["🔥","💥","⚡","✨","🌟","💫","🎉","🎊","🏆","🥇","🎯","💪","👊","🤜","🚀","🛸","⚽","🏀","🎮","🕹️","🎵","🎶","🎸","🥁","🎤"],
+  "🍕 Food":   ["🍕","🍔","🍟","🌮","🌯","🍣","🍜","🍝","🍩","🍪","🎂","🍰","🍫","🍬","🍭","🧁","🥞","🧇","🍳","🥓","☕","🧃","🍵","🥤","🧋"],
+  "🐶 Cute":   ["🐶","🐱","🐭","🐹","🐰","🦊","🐻","🐼","🐨","🐯","🦁","🐸","🦆","🐧","🦋","🌸","🌺","🌻","🌈","⭐","🌙","☀️","🍀","🌊","🦄"],
+};
+
+// ── DOM ──
+const $ = id => document.getElementById(id);
+const welcomeScreen = $('welcomeScreen');
+const authScreen    = $('authScreen');
+const chatScreen    = $('chatScreen');
+const authTitle     = $('authTitle');
+const authSub       = $('authSub');
+const nameField     = $('nameField');
+const nameInput     = $('nameInput');
+const emailInput    = $('emailInput');
+const passwordInput = $('passwordInput');
+const authError     = $('authError');
+const authBtn       = $('authBtn');
+const authToggle    = $('authToggle');
+const chatHolder    = $('chatHolder');
+const emptyState    = $('emptyState');
+const messageInput  = $('messageInput');
+const sendBtn       = $('sendBtn');
+const emojiToggle   = $('emojiToggle');
+const emojiPanel    = $('emojiPanel');
+const emojiCats     = $('emojiCats');
+const emojiGrid     = $('emojiGrid');
+const logoutBtn     = $('logoutBtn');
+const logoutModal   = $('logoutModal');
+const confirmLogout = $('confirmLogout');
+const cancelLogout  = $('cancelLogout');
+const toast         = $('toast');
+const onlineStatus  = $('onlineStatus');
+
+let isRegister = false;
+let currentUser = null;
+let messagesLoaded = false;
+let lastDate = null;
+
+// ── Welcome → Auth ──
+setTimeout(() => {
+  welcomeScreen.classList.add('hidden');
+}, 2800);
+
+// ── Auth state ──
+onAuthStateChanged(auth, user => {
+  if (user) {
+    currentUser = user;
+    authScreen.classList.remove('active');
+    chatScreen.classList.add('active');
+    onlineStatus.textContent = `● ${user.displayName || user.email.split('@')[0]}`;
+    if (!messagesLoaded) { listenMessages(); messagesLoaded = true; }
+  } else {
+    currentUser = null;
+    chatScreen.classList.remove('active');
+    authScreen.classList.add('active');
+  }
+});
+
+// ── Toggle register/login ──
+authToggle.addEventListener('click', () => {
+  isRegister = !isRegister;
+  if (isRegister) {
+    authTitle.textContent   = "Join our space 💕";
+    authSub.textContent     = "Create your account, love";
+    authBtn.textContent     = "Create Account 🌹";
+    authToggle.textContent  = "Already have an account? Sign in";
+    nameField.style.display = "flex";
+  } else {
+    authTitle.textContent   = "Welcome back 💕";
+    authSub.textContent     = "Sign in to our space";
+    authBtn.textContent     = "Sign In, My Love 💕";
+    authToggle.textContent  = "Don't have an account? Register";
+    nameField.style.display = "none";
+  }
+  authError.textContent = '';
+});
+
+// ── Auth action ──
+authBtn.addEventListener('click', async () => {
+  authError.textContent = '';
+  const email = emailInput.value.trim();
+  const pass  = passwordInput.value;
+  const name  = nameInput.value.trim();
+
+  if (!email || !pass) { authError.textContent = "Fill in all fields, baby 💕"; return; }
+  if (isRegister && !name) { authError.textContent = "What's your name, love? ❤️"; return; }
+
+  authBtn.disabled = true;
+  authBtn.textContent = isRegister ? "Creating…" : "Signing in…";
+
+  try {
+    if (isRegister) {
+      // Check 2-user limit
+      const usersSnap = await get(ref(db, 'users'));
+      const count = usersSnap.exists() ? Object.keys(usersSnap.val()).length : 0;
+      if (count >= 2) {
+        authError.textContent = "Sorry love 🥺 this space is full (2 people only)";
+        authBtn.disabled = false; authBtn.textContent = "Create Account 🌹"; return;
+      }
+      const cred = await createUserWithEmailAndPassword(auth, email, pass);
+      await updateProfile(cred.user, { displayName: name });
+      // Save user to DB
+      await push(ref(db, 'users'), { uid: cred.user.uid, name, email });
+      showToast("Welcome to our space 💕");
+    } else {
+      await signInWithEmailAndPassword(auth, email, pass);
+      showToast("Welcome back, love 🥰");
+    }
+  } catch (err) {
+    authError.textContent = friendlyError(err.code);
+    authBtn.disabled = false;
+    authBtn.textContent = isRegister ? "Create Account 🌹" : "Sign In, My Love 💕";
+  }
+});
+
+// ── Send message ──
+async function sendMessage() {
+  const text = messageInput.value.trim();
+  if (!text || !currentUser) return;
+  messageInput.value = '';
+  sendBtn.disabled = true;
+  emojiPanel.classList.remove('open');
+  await push(msgsRef, {
+    text,
+    uid:       currentUser.uid,
+    name:      currentUser.displayName || currentUser.email.split('@')[0],
+    timestamp: serverTimestamp()
+  });
+}
+
+sendBtn.addEventListener('click', sendMessage);
+messageInput.addEventListener('keydown', e => { if (e.key === 'Enter') sendMessage(); });
+messageInput.addEventListener('input', () => {
+  sendBtn.disabled = messageInput.value.trim() === '';
+});
+
+// ── Real-time messages ──
+function listenMessages() {
+  const q = query(msgsRef, orderByChild('timestamp'));
+  onChildAdded(q, snap => {
+    const d = snap.val();
+    if (!d) return;
+    if (emptyState?.parentNode) emptyState.remove();
+
+    const isMe = d.uid === currentUser?.uid;
+    const ts   = d.timestamp ? new Date(d.timestamp) : new Date();
+    const dateStr = ts.toLocaleDateString([], { weekday:'long', month:'short', day:'numeric' });
+    const timeStr = ts.toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' });
+
+    // Date divider
+    if (dateStr !== lastDate) {
+      lastDate = dateStr;
+      const div = document.createElement('div');
+      div.className = 'date-divider';
+      div.textContent = dateStr;
+      chatHolder.appendChild(div);
+    }
+
+    const row = document.createElement('div');
+    row.className = `msg-row ${isMe ? 'me' : 'them'}`;
+
+    const avatar = document.createElement('div');
+    avatar.className = 'msg-avatar';
+    avatar.textContent = (d.name?.[0] || '?').toUpperCase();
+
+    const block = document.createElement('div');
+    block.className = 'msg-block';
+
+    const bubble = document.createElement('div');
+    bubble.className = 'bubble';
+    bubble.textContent = d.text;
+
+    const time = document.createElement('div');
+    time.className = 'msg-time';
+    time.textContent = `${isMe ? 'You' : d.name} · ${timeStr}`;
+
+    block.append(bubble, time);
+    row.append(isMe ? block : avatar, isMe ? avatar : block);
+    chatHolder.appendChild(row);
+    chatHolder.scrollTop = chatHolder.scrollHeight;
+  });
+}
+
+// ── Emoji panel ──
+function buildEmojiPanel() {
+  emojiCats.innerHTML = '';
+  const cats = Object.keys(EMOJIS);
+  cats.forEach((cat, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'cat-btn' + (i === 0 ? ' active' : '');
+    btn.textContent = cat;
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      renderEmojis(cat);
+    });
+    emojiCats.appendChild(btn);
+  });
+  renderEmojis(cats[0]);
+}
+
+function renderEmojis(cat) {
+  emojiGrid.innerHTML = '';
+  EMOJIS[cat].forEach(em => {
+    const btn = document.createElement('button');
+    btn.className = 'e-btn';
+    btn.textContent = em;
+    btn.addEventListener('click', () => {
+      messageInput.value += em;
+      messageInput.focus();
+      sendBtn.disabled = messageInput.value.trim() === '';
+    });
+    emojiGrid.appendChild(btn);
+  });
+}
+
+emojiToggle.addEventListener('click', () => {
+  emojiPanel.classList.toggle('open');
+  if (emojiPanel.classList.contains('open') && !emojiGrid.children.length) buildEmojiPanel();
+});
+
+document.addEventListener('click', e => {
+  if (!emojiPanel.contains(e.target) && e.target !== emojiToggle)
+    emojiPanel.classList.remove('open');
+});
+
+// ── Logout modal ──
+logoutBtn.addEventListener('click', () => logoutModal.classList.add('open'));
+cancelLogout.addEventListener('click', () => logoutModal.classList.remove('open'));
+confirmLogout.addEventListener('click', async () => {
+  logoutModal.classList.remove('open');
+  await signOut(auth);
+  messagesLoaded = false;
+  chatHolder.innerHTML = `<div class="empty-state" id="emptyState"><div class="big">💬</div><p>Say something sweet…</p></div>`;
+  lastDate = null;
+  showToast("See you soon, love 💕");
+});
+
+// ── Toast ──
+function showToast(msg) {
+  toast.textContent = msg;
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 2800);
+}
+
+// ── Friendly errors ──
+function friendlyError(code) {
+  switch(code) {
+    case 'auth/wrong-password':
+    case 'auth/invalid-credential':  return "Nice try 🥰 but that's not our secret code";
+    case 'auth/user-not-found':      return "Hmm, I don't know that email 💌";
+    case 'auth/email-already-in-use':return "That email is already registered 💌";
+    case 'auth/too-many-requests':   return "Too many tries baby, wait a moment 😅";
+    case 'auth/invalid-email':       return "That email doesn't look right 💌";
+    case 'auth/weak-password':       return "Password needs 6+ characters 🔐";
+    default: return "Something went wrong, try again 💕";
+  }
+}
+</script>
+</body>
+</html>
